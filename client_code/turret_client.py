@@ -1,13 +1,14 @@
 import socket
 import struct
 import cv2
-import select 
+import select
 from picamera2 import Picamera2
 from turret_motors import MotorController
 
-SERVER_IP = '192.168.1.142'
+SERVER_IP = '192.168.1.142' 
 SERVER_PORT = 9999
 
+# Initialize the separate motor module
 motors = MotorController()
 
 # --- CAMERA SETUP ---
@@ -29,11 +30,11 @@ client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 try:
     print(f"📡 Connecting to {SERVER_IP}...", flush=True)
     client_socket.connect((SERVER_IP, SERVER_PORT))
-    client_socket.setblocking(False) # <---- !!!CRITICAL: Set socket to non-blocking mode!!!
+    client_socket.setblocking(False) 
     print("✅ Connected! Starting Stream...", flush=True)
 
     while True:
-        # capture frame and send
+        # 1. CAPTURE & SEND
         frame = camera.capture_array()
         ret, encoded_frame = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 70])
         data = encoded_frame.tobytes()
@@ -42,16 +43,11 @@ try:
             packet = struct.pack("!I", len(data)) + data
             client_socket.sendall(packet)
         except BlockingIOError:
-            pass # socket buffer full, skip frame this is to prevent lag
-
-        # CHECK FOR COMMANDS (NON-THREADED)
-        # select.select([read_list], [write_list], [error_list], timeout)
-        # Timeout = 0.0 means "Check instantly and don't wait"
+            pass 
         readable, _, _ = select.select([client_socket], [], [], 0.0)
 
         if readable:
             try:
-                # I use 1024 bytes because is enough for {"pan": "RIGHT", "tilt": "UP"}
                 response_data = client_socket.recv(1024)
                 
                 if not response_data:

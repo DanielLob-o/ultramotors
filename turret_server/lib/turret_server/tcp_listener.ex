@@ -46,28 +46,10 @@ defmodule TurretServer.TcpListener do
   # --- LOGIC & COMMANDS ---
   defp process_detections([], _client), do: :ok
   defp process_detections([target | _], client) do
-    # TODO Update logic: only convert Error X/Y to command
     err_x = target["err_x"]
     err_y = target["err_y"]
 
-    cmd_pan = cond do
-      err_x > 20 -> "RIGHT"
-      err_x < -20 -> "LEFT"
-      true -> "HOLD"
-    end
-
-    cmd_tilt = cond do
-      err_y > 20 -> "DOWN"
-      err_y < -20 -> "UP"
-      true -> "HOLD"
-    end
-
-    if cmd_pan != "HOLD" or cmd_tilt != "HOLD" do
-      Logger.info("🎯 #{target["label"]} | Err: #{err_x},#{err_y} | Cmd: #{cmd_pan}, #{cmd_tilt}")
-
-      # send info back to pi
-      response = Jason.encode!(%{pan: cmd_pan, tilt: cmd_tilt})
-      :gen_tcp.send(client, response)
-    end
+    response = Jason.encode!(%{err_x: err_x, err_y: err_y})
+    :gen_tcp.send(client, response)
   end
 end

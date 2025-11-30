@@ -78,6 +78,7 @@ def main():
     frame_count = 0
     last_results = [] 
 
+
     while True:
         try:
             header = read_exact(4)

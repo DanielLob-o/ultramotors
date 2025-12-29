@@ -8,7 +8,8 @@ defmodule TurretServer.PythonWorker do
   end
 
   def process_frame(jpeg_binary) do
-    GenServer.call(__MODULE__, {:process_frame, jpeg_binary}, 2000) # 0.2s timeout
+    # 0.2s timeout
+    GenServer.call(__MODULE__, {:process_frame, jpeg_binary}, 2000)
   end
 
   # --- CALLBACKS ---
@@ -35,7 +36,6 @@ defmodule TurretServer.PythonWorker do
   def handle_call({:process_frame, jpeg_data}, _from, %{port: port} = state) do
     Port.command(port, jpeg_data)
 
-    # TODO: change to handle_cast to do it async
     receive do
       {^port, {:data, json_result}} ->
         decoded = Jason.decode!(json_result)

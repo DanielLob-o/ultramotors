@@ -8,15 +8,12 @@ import os
 
 # --- CONFIGURATION ---
 SHOW_WINDOW = True 
-PROCESS_EVERY_N_FRAMES = 15
-TARGET_CLASSES = [15] 
+PROCESS_EVERY_N_FRAMES = 10
+TARGET_CLASSES = [0, 15] 
 
 #0 = Person
-
 #14 = Bird
-
 #15 = Cat
-
 #16 = Dog
 
 # --- HELPER: SEND DATA TO ELIXIR ---
